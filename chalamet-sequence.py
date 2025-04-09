@@ -1,8 +1,11 @@
 import calendar
 import datetime
 import json
+import pathlib
 import pickle
 from pprint import pprint
+import tempfile
+from typing import Any
 
 import statsapi
 from tenacity import retry, wait_exponential
@@ -36,6 +39,13 @@ def get_play_by_play(game_id: int):
     return game
 
 
+def pickle_dump(data: Any, path: pathlib.Path | str):
+    with tempfile.NamedTemporaryFile("wb", delete=False) as f:
+        pickle.dump(data, f)
+
+    pathlib.Path(f.name).rename(path)
+
+
 plays = []
 
 schedules = {}
@@ -55,8 +65,7 @@ for year in range(2025, 2015, -1):
         if year < datetime.datetime.now().year:
             schedules[year] = games
             print(f"writing schedule for {year} season")
-            with open("schedules.pickle", "wb") as f:
-                pickle.dump(schedules, f)
+            pickle_dump(schedules, "schedules.pickle")
 
     play_by_play = {}
 
@@ -137,8 +146,7 @@ for year in range(2025, 2015, -1):
             plays.append(play)
 
     print(f"writing play by play for {year} season")
-    with open(f"pbp{year}.pickle", "wb") as f:
-        pickle.dump(play_by_play, f)
+    pickle_dump(play_by_play, f"pbp{year}.pickle")
 
 with open("plays.json", "w") as f:
     json.dump(plays, f, indent=4)

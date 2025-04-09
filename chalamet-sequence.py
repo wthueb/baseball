@@ -51,12 +51,12 @@ plays = []
 schedules = {}
 
 try:
-    with open("schedules.pickle", "rb") as f:
+    with open("pickles/schedules.pickle", "rb") as f:
         schedules = pickle.load(f)
 except FileNotFoundError:
     pass
 
-for year in range(2025, 2015, -1):
+for year in range(2025, 2000, -1):
     games = schedules.get(year, None)
     if games is None:
         print(f"fetching schedule for {year} season")
@@ -65,12 +65,12 @@ for year in range(2025, 2015, -1):
         if year < datetime.datetime.now().year:
             schedules[year] = games
             print(f"writing schedule for {year} season")
-            pickle_dump(schedules, "schedules.pickle")
+            pickle_dump(schedules, "pickles/schedules.pickle")
 
     play_by_play = {}
 
     try:
-        with open(f"pbp{year}.pickle", "rb") as f:
+        with open(f"pickles/pbp{year}.pickle", "rb") as f:
             print(f"reading play by play for {year} season")
             play_by_play = pickle.load(f)
     except FileNotFoundError:
@@ -146,7 +146,7 @@ for year in range(2025, 2015, -1):
             plays.append(play)
 
     print(f"writing play by play for {year} season")
-    pickle_dump(play_by_play, f"pbp{year}.pickle")
+    pickle_dump(play_by_play, f"pickles/pbp{year}.pickle")
 
 with open("plays.json", "w") as f:
     json.dump(plays, f, indent=4)

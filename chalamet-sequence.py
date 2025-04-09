@@ -1,6 +1,7 @@
 import calendar
 import datetime
 import json
+import pickle
 from pprint import pprint
 
 import statsapi
@@ -17,7 +18,7 @@ def get_schedule(start_date: datetime.date, end_date: datetime.date):
     return games
 
 
-def get_games(year):
+def get_games(year: int):
     games = []
 
     for month in range(1, 13):
@@ -40,11 +41,25 @@ plays = []
 for year in range(2025, 2015, -1):
     games = get_games(year)
 
+    play_by_play = {}
+
+    try:
+        with open(f"pbp{year}.pickle", "rb") as f:
+            play_by_play = pickle.load(f)
+    except FileNotFoundError:
+        pass
+
     for scheduled in tqdm(games, desc=f"{year} season"):
         if scheduled["status"] != "Final":  # hasn't been played yet
             continue
 
-        game = get_play_by_play(scheduled["game_id"])
+        game_id = scheduled["game_id"]
+
+        game = play_by_play.get(game_id, None)
+
+        if game is None:
+            game = get_play_by_play(game_id)
+            play_by_play[game_id] = game
 
         for play in game["allPlays"]:
             if not (play["count"]["balls"] == 0 and play["count"]["strikes"] == 3):
@@ -102,6 +117,9 @@ for year in range(2025, 2015, -1):
 
             pprint(play)
             plays.append(play)
+
+    with open(f"pbp{year}.pickle", "wb") as f:
+        pickle.dump(play_by_play, f)
 
 with open("plays.json", "w") as f:
     json.dump(plays, f, indent=4)

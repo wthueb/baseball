@@ -115,8 +115,13 @@ for year in range(2025, 2000, -1):
 
                 outside = CATCHER_RIGHT if bat_side == "R" else CATCHER_LEFT
 
+                def get_zone(pitch):
+                    if "zone" in pitch["pitchData"]:
+                        return pitch["pitchData"]["zone"]
+                    return pitch["details"]["zone"]
+
                 # not outside
-                if first["details"]["zone"] not in outside:
+                if get_zone(first) not in outside:
                     continue
 
                 # counting knuckle curve as a curveball
@@ -128,7 +133,7 @@ for year in range(2025, 2000, -1):
                     continue
 
                 # not below the zone
-                if second["details"]["zone"] not in [13, 14]:
+                if get_zone(second) not in [13, 14]:
                     continue
 
                 # counting sinker as a fastball
@@ -142,7 +147,7 @@ for year in range(2025, 2000, -1):
                 inside = CATCHER_LEFT if bat_side == "R" else CATCHER_RIGHT
 
                 # not inside
-                if third["details"]["zone"] not in inside:
+                if get_zone(third) not in inside:
                     continue
             except Exception:  # pitch data missing
                 count_bad += 1
@@ -151,7 +156,7 @@ for year in range(2025, 2000, -1):
             pprint(play)
             plays.append(play)
 
-    print(f"{count_bad/count:.2%} of plays missing data")
+    print(f"{count_bad / count:.2%} of plays missing data")
     print(f"writing play by play for {year} season")
     pickle_dump(play_by_play, f"pickles/pbp{year}.pickle")
 

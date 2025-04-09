@@ -38,13 +38,31 @@ def get_play_by_play(game_id: int):
 
 plays = []
 
+schedules = {}
+
+try:
+    with open("schedules.pickle", "rb") as f:
+        schedules = pickle.load(f)
+except FileNotFoundError:
+    pass
+
 for year in range(2025, 2015, -1):
-    games = get_games(year)
+    games = schedules.get(year, None)
+    if games is None:
+        print(f"fetching schedule for {year} season")
+        games = get_games(year)
+
+        if year < datetime.datetime.now().year:
+            schedules[year] = games
+            print(f"writing schedule for {year} season")
+            with open("schedules.pickle", "wb") as f:
+                pickle.dump(schedules, f)
 
     play_by_play = {}
 
     try:
         with open(f"pbp{year}.pickle", "rb") as f:
+            print(f"reading play by play for {year} season")
             play_by_play = pickle.load(f)
     except FileNotFoundError:
         pass
@@ -118,6 +136,7 @@ for year in range(2025, 2015, -1):
             pprint(play)
             plays.append(play)
 
+    print(f"writing play by play for {year} season")
     with open(f"pbp{year}.pickle", "wb") as f:
         pickle.dump(play_by_play, f)
 

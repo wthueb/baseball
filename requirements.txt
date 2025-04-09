@@ -1,0 +1,9 @@
+certifi==2025.1.31
+charset-normalizer==3.4.1
+idna==3.10
+MLB-StatsAPI==1.9.0
+psycopg2-binary==2.9.10
+requests==2.32.3
+tenacity==9.1.2
+tqdm==4.67.1
+urllib3==2.3.0

@@ -76,6 +76,9 @@ for year in range(2025, 2000, -1):
     except FileNotFoundError:
         pass
 
+    count = 0
+    count_bad = 0
+
     for scheduled in tqdm(games, desc=f"{year} season"):
         if scheduled["status"] != "Final":  # hasn't been played yet
             continue
@@ -100,6 +103,8 @@ for year in range(2025, 2000, -1):
             pitches = [play["playEvents"][i] for i in pitch_idxs]
 
             first, second, third = pitches
+
+            count += 1
 
             try:
                 # counting sweeper as a slider
@@ -140,11 +145,13 @@ for year in range(2025, 2000, -1):
                 if third["details"]["zone"] not in inside:
                     continue
             except Exception:  # pitch data missing
+                count_bad += 1
                 continue
 
             pprint(play)
             plays.append(play)
 
+    print(f"{count_bad/count:.2%} of plays missing data")
     print(f"writing play by play for {year} season")
     pickle_dump(play_by_play, f"pickles/pbp{year}.pickle")
 

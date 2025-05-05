@@ -1,9 +1,7 @@
 import calendar
 import datetime
-import json
 import pathlib
 import pickle
-from pprint import pprint
 import tempfile
 from typing import Any
 
@@ -57,13 +55,15 @@ try:
 except FileNotFoundError:
     pass
 
-for year in range(2025, 2007, -1):
+current_year = datetime.datetime.now().year
+
+for year in range(current_year, 2007, -1):
     games = schedules.get(year, None)
     if games is None:
         print(f"fetching {year} games")
         games = get_games(year)
 
-        if year < datetime.datetime.now().year:
+        if year < current_year:
             schedules[year] = games
             file = "pickles/schedules.pickle"
             print(f"writing {file}")

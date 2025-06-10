@@ -1,37 +1,41 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
   outputs =
     { self, nixpkgs }:
     let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      forEachSupportedSystem =
+      forAllSystems =
         f:
-        nixpkgs.lib.genAttrs supportedSystems (
-          system:
-          f {
-            pkgs = import nixpkgs {
-              inherit system;
-            };
-          }
-        );
+        nixpkgs.lib.genAttrs
+          [
+            "x86_64-linux"
+            "aarch64-linux"
+            "x86_64-darwin"
+            "aarch64-darwin"
+          ]
+          (
+            system:
+            f rec {
+              pkgs = nixpkgs.legacyPackages.${system};
+              python = pkgs.python313;
+            }
+          );
     in
     {
-      devShells = forEachSupportedSystem (
-        { pkgs }:
+      devShells = forAllSystems (
+        { pkgs, python }:
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              python313
+              uv
             ];
+            env = {
+              UV_PYTHON_DOWNLOADS = "never";
+              UV_PYTHON = python.interpreter;
+            };
             shellHook = ''
-              python -m venv env
-              source env/bin/activate
+              uv sync
+              source .venv/bin/activate
             '';
           };
         }

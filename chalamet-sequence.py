@@ -1,3 +1,4 @@
+import argparse
 import calendar
 import datetime
 import pathlib
@@ -44,6 +45,10 @@ def pickle_dump(data: Any, path: pathlib.Path | str):
     pathlib.Path(f.name).rename(path)
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--quiet", action="store_true")
+args = parser.parse_args()
+
 best_plays = []
 best_score = 0
 
@@ -60,13 +65,15 @@ current_year = datetime.datetime.now().year
 for year in range(current_year, 2007, -1):
     games = schedules.get(year, None)
     if games is None:
-        print(f"fetching {year} games")
+        if not args.quiet:
+            print(f"fetching {year} games")
         games = get_games(year)
 
         if year < current_year:
             schedules[year] = games
             file = "pickles/schedules.pickle"
-            print(f"writing {file}")
+            if not args.quiet:
+                print(f"writing {file}")
             pickle_dump(schedules, file)
 
     play_by_play = {}
@@ -74,12 +81,15 @@ for year in range(current_year, 2007, -1):
     try:
         file = f"pickles/pbp{year}.pickle"
         with open(file, "rb") as f:
-            print(f"reading {file}")
+            if not args.quiet:
+                print(f"reading {file}")
             play_by_play = pickle.load(f)
     except FileNotFoundError:
         pass
 
-    for scheduled in tqdm(games, desc=f"{year} season"):
+    pbp_updated = False
+
+    for scheduled in tqdm(games, desc=f"{year} season", disable=args.quiet):
         if scheduled["status"] != "Final":  # hasn't been played yet
             continue
 
@@ -91,6 +101,7 @@ for year in range(current_year, 2007, -1):
         game = play_by_play.get(game_id, None)
 
         if game is None:
+            pbp_updated = True
             game = get_play_by_play(game_id)
             play_by_play[game_id] = game
 
@@ -167,14 +178,25 @@ for year in range(current_year, 2007, -1):
                 best_score = score
 
     best_plays.sort(key=lambda play: play["about"]["startTime"])
-    print(f"{best_score=}")
-    print(
-        "\n".join(
-            f"{play['about']['startTime']} - {play['matchup']['pitcher']['fullName']} to {play['matchup']['batter']['fullName']}"
-            for play in best_plays
+    if not args.quiet:
+        print(f"{best_score=}")
+        print(
+            "\n".join(
+                f"{play['about']['startTime']} - {play['matchup']['pitcher']['fullName']} to {play['matchup']['batter']['fullName']}"
+                for play in best_plays
+            )
         )
-    )
 
-    file = f"pickles/pbp{year}.pickle"
-    print(f"writing {file}")
-    pickle_dump(play_by_play, file)
+    if pbp_updated:
+        file = f"pickles/pbp{year}.pickle"
+        if not args.quiet:
+            print(f"writing {file}")
+        pickle_dump(play_by_play, file)
+
+print(f"{best_score=}")
+print(
+    "\n".join(
+        f"{play['about']['startTime']} - {play['matchup']['pitcher']['fullName']} to {play['matchup']['batter']['fullName']}"
+        for play in best_plays
+    )
+)

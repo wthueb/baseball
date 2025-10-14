@@ -14,3 +14,8 @@ Skubal to Kemp, 2025-08-02:
 1. https://baseballsavant.mlb.com/sporty-videos?playId=e12ba4ef-5379-3add-8dff-fecc3cf80f41
 2. https://baseballsavant.mlb.com/sporty-videos?playId=b0f9605b-9594-3ad5-8a31-d151499f5a99
 3. https://baseballsavant.mlb.com/sporty-videos?playId=b70ba550-2718-36e3-9d39-a6fe23402fb3
+
+Varland to Suárez, 2025-10-13:
+1. https://baseballsavant.mlb.com/sporty-videos?playId=12f4e6e8-5566-3196-9fbf-38996fbc05f1
+2. https://baseballsavant.mlb.com/sporty-videos?playId=8e478776-f1c9-398c-9bc4-523f839cf9f1
+3. https://baseballsavant.mlb.com/sporty-videos?playId=17663223-3939-3f02-8b01-603786d3b5f5

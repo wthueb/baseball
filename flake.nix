@@ -1,44 +1,34 @@
 {
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+  };
 
   outputs =
-    { self, nixpkgs }:
-    let
-      forAllSystems =
-        f:
-        nixpkgs.lib.genAttrs
-          [
-            "x86_64-linux"
-            "aarch64-linux"
-            "x86_64-darwin"
-            "aarch64-darwin"
-          ]
-          (
-            system:
-            f rec {
-              pkgs = nixpkgs.legacyPackages.${system};
-              python = pkgs.python313;
-            }
-          );
-    in
-    {
-      devShells = forAllSystems (
-        { pkgs, python }:
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
+      perSystem =
+        { pkgs, ... }:
         {
-          default = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             packages = with pkgs; [
               uv
             ];
             env = {
               UV_PYTHON_DOWNLOADS = "never";
-              UV_PYTHON = python.interpreter;
+              UV_PYTHON = pkgs.python313.interpreter;
             };
             shellHook = ''
               uv sync
               source .venv/bin/activate
             '';
           };
-        }
-      );
+        };
     };
 }

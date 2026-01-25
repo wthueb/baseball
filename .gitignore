@@ -1,5 +1,4 @@
 env/
 data/
-flake.lock
 *.pickle
 plays.json

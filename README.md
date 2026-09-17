@@ -1,21 +1,31 @@
-### Chalamet sequence
+## Chalamet sequence
 
+https://x.com/mawFFA500/status/1451291581110173697
 https://www.youtube.com/watch?v=faAgg0Uc3FU
 https://www.youtube.com/watch?v=chfUjeeUh3A
 
-Closest examples I could find as of 8/15/2025:
+Closest examples I could find as of 9/17/2026:
 
-Darvish to Moncada, 2020-09-25:
+### Darvish to Moncada, 2020-09-25:
 1. https://baseballsavant.mlb.com/sporty-videos?playId=4014c0d3-0ce2-4b43-bd6f-4e9586a26fab
+    - perfect
 2. https://baseballsavant.mlb.com/sporty-videos?playId=0af21e8a-bff1-4109-bb47-090cd3688bb8
+    - not in the dirt, but it is a chase low
 3. https://baseballsavant.mlb.com/sporty-videos?playId=5dec452a-45e2-40af-b047-f563c9259bea
+    - outside corner, dotted though
 
-Skubal to Kemp, 2025-08-02:
+### Skubal to Kemp, 2025-08-02:
 1. https://baseballsavant.mlb.com/sporty-videos?playId=e12ba4ef-5379-3add-8dff-fecc3cf80f41
+    - perfect
 2. https://baseballsavant.mlb.com/sporty-videos?playId=b0f9605b-9594-3ad5-8a31-d151499f5a99
+    - not a ball, dotted low but it is swinging
 3. https://baseballsavant.mlb.com/sporty-videos?playId=b70ba550-2718-36e3-9d39-a6fe23402fb3
+    - almost perfect, not quite dotted but it is looking
 
-Varland to Suárez, 2025-10-13:
+### Varland to Suárez, 2025-10-13:
 1. https://baseballsavant.mlb.com/sporty-videos?playId=12f4e6e8-5566-3196-9fbf-38996fbc05f1
+    - statcast is calling this a slider, it's a cutter in my book. but it's perfect if you think it's a slider
 2. https://baseballsavant.mlb.com/sporty-videos?playId=8e478776-f1c9-398c-9bc4-523f839cf9f1
+    - not in the dirt, but it is a chase low
 3. https://baseballsavant.mlb.com/sporty-videos?playId=17663223-3939-3f02-8b01-603786d3b5f5
+    - outside corner, dotted/ump called it a strike

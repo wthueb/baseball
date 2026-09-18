@@ -21,6 +21,7 @@ CRITERION_LABELS = {
     "outside": "Outside",
     "in_dirt": "In dirt",
     "chase": "Chase",
+    "below_strike_zone": "Below strike zone",
     "97_plus_mph": "97+ mph",
     "inside": "Inside",
     "called_strike": "Called strike",
@@ -94,11 +95,24 @@ def build_play_result(play: dict[str, Any]) -> PlayResult:
     outside = CATCHER_RIGHT if bat_side == "R" else CATCHER_LEFT
     inside = CATCHER_LEFT if bat_side == "R" else CATCHER_RIGHT
 
+    second_pitch_data = second.get("pitchData", {})
+    second_p_z = second_pitch_data.get("coordinates", {}).get("pZ")
+    second_strike_zone_bottom = second_pitch_data.get("strikeZoneBottom")
+    second_below_strike_zone = (
+        second_p_z is not None
+        and second_strike_zone_bottom is not None
+        and second_p_z < second_strike_zone_bottom
+    )
+
     criteria = [
-        {"outside": first["pitchData"]["zone"] in outside},
+        {
+            "outside": first["pitchData"]["zone"] in outside,
+            "called_strike": first["details"]["code"] == "C",
+        },
         {
             "in_dirt": second["details"]["code"] in BALL_IN_DIRT_CODES,
             "chase": second["details"]["code"] in SWINGING_STRIKE_CODES,
+            "below_strike_zone": second_below_strike_zone,
         },
         {
             "97_plus_mph": third["pitchData"]["startSpeed"] >= 96.5,

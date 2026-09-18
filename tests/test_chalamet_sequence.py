@@ -13,6 +13,7 @@ SPEC.loader.exec_module(chalamet_sequence)
 def make_play(
     *,
     start_time="2025-08-02T12:00:00Z",
+    first_code="C",
     second_code="W",
     play_ids=("first-id", "second-id", "third-id"),
 ):
@@ -28,10 +29,15 @@ def make_play(
             {
                 "playId": play_ids[0],
                 "pitchData": {"zone": 3},
+                "details": {"code": first_code},
             },
             {
                 "playId": play_ids[1],
                 "details": {"code": second_code},
+                "pitchData": {
+                    "coordinates": {"pZ": 1.5},
+                    "strikeZoneBottom": 1.6,
+                },
             },
             {
                 "playId": play_ids[2],
@@ -46,9 +52,16 @@ def test_groups_all_criteria_by_pitch_and_counts_score():
     result = chalamet_sequence.build_play_result(make_play())
 
     assert isinstance(result, chalamet_sequence.PlayResult)
-    assert result.score == 6
-    assert result.pitches[0].criteria == {"outside": True}
-    assert result.pitches[1].criteria == {"in_dirt": True, "chase": True}
+    assert result.score == 8
+    assert result.pitches[0].criteria == {
+        "outside": True,
+        "called_strike": True,
+    }
+    assert result.pitches[1].criteria == {
+        "in_dirt": True,
+        "chase": True,
+        "below_strike_zone": True,
+    }
     assert result.pitches[2].criteria == {
         "97_plus_mph": True,
         "inside": True,
@@ -64,11 +77,35 @@ def test_groups_all_criteria_by_pitch_and_counts_score():
         )
 
 
+def test_pitch_one_not_called_does_not_score_called_strike():
+    result = chalamet_sequence.build_play_result(make_play(first_code="S"))
+
+    assert result.pitches[0].criteria == {
+        "outside": True,
+        "called_strike": False,
+    }
+    assert result.score == 7
+
+
+def test_pitch_two_without_p_z_does_not_score_below_strike_zone():
+    play = make_play()
+    play["playEvents"][1]["pitchData"]["coordinates"].clear()
+
+    result = chalamet_sequence.build_play_result(play)
+
+    assert result.pitches[1].criteria["below_strike_zone"] is False
+    assert result.score == 7
+
+
 def test_ordinary_swinging_strike_is_a_chase_but_not_in_dirt():
     result = chalamet_sequence.build_play_result(make_play(second_code="S"))
 
-    assert result.pitches[1].criteria == {"in_dirt": False, "chase": True}
-    assert result.score == 5
+    assert result.pitches[1].criteria == {
+        "in_dirt": False,
+        "chase": True,
+        "below_strike_zone": True,
+    }
+    assert result.score == 7
 
 
 def test_missing_play_id_has_no_url():
@@ -107,6 +144,7 @@ def test_human_output_shows_yes_and_no_for_every_criterion():
     play = make_play(second_code="S")
     play["playEvents"][0]["pitchData"]["zone"] = 2
     play["playEvents"][1].pop("playId")
+    play["playEvents"][1]["pitchData"]["coordinates"]["pZ"] = 1.6
     play["playEvents"][2]["pitchData"] = {
         "startSpeed": 90.0,
         "zone": 2,
@@ -120,6 +158,7 @@ def test_human_output_shows_yes_and_no_for_every_criterion():
     assert "Outside: no" in output
     assert "In dirt: no" in output
     assert "Chase: yes" in output
+    assert "Below strike zone: no" in output
     assert "97+ mph: no" in output
     assert "Inside: no" in output
     assert "Called strike: no" in output
@@ -129,14 +168,17 @@ def test_human_output_shows_yes_and_no_for_every_criterion():
 def test_json_output_matches_pipeline_contract():
     result = chalamet_sequence.build_play_result(make_play())
 
-    output = chalamet_sequence.format_json_results(6, [result])
+    output = chalamet_sequence.format_json_results(8, [result])
     document = json.loads(output)
 
     assert set(document) == {"best_score", "plays"}
-    assert document["best_score"] == 6
+    assert document["best_score"] == 8
     expected_play = json.loads(json.dumps(dataclasses.asdict(result)))
     assert document["plays"] == [expected_play]
-    assert document["plays"][0]["pitches"][0]["criteria"]["outside"] is True
+    assert document["plays"][0]["pitches"][0]["criteria"] == {
+        "outside": True,
+        "called_strike": True,
+    }
     assert "\n" not in output
 
 
